@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Set first operator 
+OP=$(echo "$1")  
+
+# Set variables for easy normal/bold font switching
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+if [[ -z $OP || $OP == "--help" || $OP == "-h" ]];
+then
+	printf "rm-kernel(8)
+	\n\n${bold}Description${normal}
+	\n\tManage installed Linux kernels, initramfs and GRUB bootloader entries.
+	\n\tThe script might request root privilages when certain operators are used.
+	\n\tThis program assumes common file naming schemes are used.
+	\n\n${bold}Commonly used options${normal}
+	\n\n\t${bold}-h, --help${normal}
+	\n\t\tShow this help page
+	\n\t${bold}-l, --list${normal}
+	\n\t\tList installed kernels\n
+	\n\n${bold}Listing information${normal}
+	\n\t${bold}-la, --list-all${normal}
+	\n\t\tList all
+	\n\t${bold}-lb, --list-bootloader-entries${normal}
+	\n\t\tList grub bootloader entries
+	\n\t${bold}-lh, --list-headers${normal}
+	\n\t\tList installed kernel headers per kernel version
+	\n"
+fi
+
+if [[ $OP == "--list" || $OP == "-l" ]];
+then
+	# Check for compressed kernels
+	ls -1 /boot | grep vmlinuz-*
+
+	# Check for uncompressed kernels
+	ls -1 /boot | grep vmlinux-*
+fi
+
+if [[ $OP == "--list-bootloader-entries" || $OP == "-lb" ]];
+then
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+	# List GRUB bootloader entries
+	ls -1 /boot/loader/entries
+fi
+
+if [[ $OP == "--list-headers" || $OP == "-lh" ]];
+then
+	# List kernel headers
+	ls -1 /lib/modules
+fi
