@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Set first operator 
-OP=$(echo "$1")  
+OP=$(echo "$1")
+OP2=$(echo "$2")
 
 # Set variables for easy normal/bold font switching
 bold=$(tput bold)
@@ -26,9 +27,18 @@ then
 	\n\t\tList grub bootloader entries
 	\n\t${bold}-lh, --list-headers${normal}
 	\n\t\tList installed kernel headers per kernel version
+	\n\t${bold}-lm, --list-modules${normal}
+	\n\t\tList installed modules
+	\n\n${bold}Removing${normal}
+	\n\t${bold}-rm, --remove <kernel>${normal}
+	\n\t\tRemove installed kernel, initramfs, bootloader entries and modules 
 	\n"
+
+	# Exit
+	exit  0
 fi
 
+### Listing information ###
 if [[ $OP == "--list" || $OP == "-l" ]];
 then
 	# Check for compressed kernels
@@ -36,6 +46,36 @@ then
 
 	# Check for uncompressed kernels
 	ls -1 /boot | grep vmlinux-*
+
+	# Exit
+	exit  0
+fi
+
+if [[ $OP == "--list-all" || $OP == "-la" ]];
+then
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	printf "${bold}Kernels${normal}\n"
+	ls -1 /boot | grep vmlinuz-*
+	ls -1 /boot | grep vmlinux-*
+
+	printf "\n${bold}Initramfs${normal}\n"
+	ls -1 /boot | grep initramfs*
+
+	printf "\n${bold}Modules${normal}\n"
+	ls -1 /lib/modules
+
+	printf "\n${bold}Bootloader entries${normal}\n"
+	# Grep everything except rescue entries
+	ls -1 /boot/loader/entries | grep -v "rescue"
+
+	# Exit
+	exit  0
 fi
 
 if [[ $OP == "--list-bootloader-entries" || $OP == "-lb" ]];
@@ -48,10 +88,26 @@ then
 	fi
 	# List GRUB bootloader entries
 	ls -1 /boot/loader/entries
+	
+	# Exit
+	exit  0
 fi
+
+if [[ $OP == "--list-headers" || $OP == "-lh" ]];
+then
+	# List kernel modules
+	ls -1 /lib/modules
+	
+	# Exit
+	exit  0
+fi
+
 
 if [[ $OP == "--list-headers" || $OP == "-lh" ]];
 then
 	# List kernel headers
 	ls -1 /lib/modules
+	
+	# Exit
+	exit  0
 fi
