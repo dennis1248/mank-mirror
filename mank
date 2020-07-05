@@ -30,7 +30,7 @@ then
 	\n\t${bold}-lm, --list-modules${normal}
 	\n\t\tList installed modules
 	\n\n${bold}Removing${normal}
-	\n\t${bold}-rm, --remove <kernel>${normal}
+	\n\t${bold}-r, --remove <kernel>${normal}
 	\n\t\tRemove installed kernel, initramfs, bootloader entries and modules 
 	\n"
 
@@ -113,12 +113,12 @@ then
 fi
 
 ### Removing ###
-if [[ $OP == "--remove" || $OP == "-rm" ]];
+if [[ $OP == "--remove" || $OP == "-r" ]];
 then
 	if [ -z $OP2 ]; 
 	then
 		printf "You must specify a kernel to remove
-		\n${bold}-rm, --remove <kernel>${normal}
+		\n${bold}-r, --remove <kernel>${normal}
 		\n\tRemove installed kernel, initramfs, bootloader entries and modules
 		\n"
    	exit $?
