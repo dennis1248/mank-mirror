@@ -3,6 +3,7 @@
 # Set first operator 
 OP=$(echo "$1")
 OP2=$(echo "$2")
+OP3=$(echo "$3")
 
 # Set variables for easy normal/bold font switching
 bold=$(tput bold)
@@ -31,12 +32,18 @@ then
 	\n\t\tList installed modules
 	\n\n${bold}Removing${normal}
 	\n\t${bold}-r, --remove <kernel>${normal}
-	\n\t\tRemove installed kernel, initramfs, bootloader entries and modules 
+	\n\t\tRemove installed kernel, initramfs, bootloader entries and modules
+	\n\t${bold}<Remove operator> <kernel> --dry${normal}
+	\n\t\tDo a dry run and print files
 	\n"
 
 	# Exit
 	exit  0
 fi
+
+### Check if input is valid ###
+
+
 
 ### Listing information ###
 if [[ $OP == "--list" || $OP == "-l" ]];
@@ -123,12 +130,37 @@ then
 		\n"
    	exit $?
 	fi
+	
 	# Request root privilages if not already root
 	if [ $EUID != 0 ]; 
 	then
   	sudo "$0" "$@"
    	exit $?
 	fi
+
+	# if dry run is requested
+	if [[ $OP3 == "--dry" ]]; 
+	then
+		printf "The following kernels will be removed\n"
+		ls -1 /boot | grep vmlinuz | grep $OP2 2> /dev/null || printf "No kernels found\n"
+
+		printf "\nThe following initramfs files will be removed\n"
+		ls -1 /boot | grep initramfs | grep $OP2 2> /dev/null || printf "No initramfs found\n" 
+	
+		printf "\nThe following config files will be removed\n"
+		ls -1 /boot | grep config | grep $OP2 2> /dev/null || printf "No config files found\n"
+
+		printf "\nThe following modules will be removed\n"
+		ls -1 /lib/modules | grep $OP2 2> /dev/null || printf "No modules found\n"
+
+		printf "\nThe following bootloader entries will be removed\n"
+		ls -1 /boot/loader/entries | grep $OP2 2> /dev/null || printf "No bootloader entries found\n"
+
+		printf "\nDone...\n"
+
+   	exit 0
+	fi
+
 
 	# Remove kernel
 	printf "Removing kernel...\n"
