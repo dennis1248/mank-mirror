@@ -103,7 +103,7 @@ then
 fi
 
 
-if [[ $OP == "--list-headers" || $OP == "-lh" ]];
+if [[ $OP == "--list-modules" || $OP == "-lm" ]];
 then
 	# List kernel headers
 	ls -1 /lib/modules
@@ -111,3 +111,49 @@ then
 	# Exit
 	exit  0
 fi
+
+### Removing ###
+if [[ $OP == "--remove" || $OP == "-rm" ]];
+then
+	if [ -z $OP2 ]; 
+	then
+		printf "You must specify a kernel to remove
+		\n${bold}-rm, --remove <kernel>${normal}
+		\n\tRemove installed kernel, initramfs, bootloader entries and modules
+		\n"
+   	exit $?
+	fi
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	# Remove kernel
+	printf "Removing kernel...\n"
+	rm /boot/mvlinuz-*$OP2* 2> /dev/null || printf "Error removing kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+
+	# Remove initramfs
+	printf "Removing initrams...\n"
+	rm /boot/initramfs-*$OP2* 2> /dev/null || printf "Error removing initramfs for kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+	
+	# Remove kernel configs
+	printf "Removing configs...\n"
+	rm /boot/config-*$OP2* 2> /dev/null || printf "Could not find any kernel config files, -Don't panic- not all distros have these\n"
+
+	# Remove modules
+	printf "Removing modules...\n"
+	rm -r /lib/modules/*$OP2* 2> /dev/null || printf "Error removing modules for kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+
+	# Remove bootloader entries
+	printf "Removing bootloader entries...\n"
+	rm -r /boot/loader/entries/*$OP2* 2> /dev/null || printf "Error removing GRUB bootloader entries for kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+
+	printf "Done...\n"
+ 
+
+	# Exit
+	exit  0
+fi
+
