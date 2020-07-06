@@ -15,7 +15,7 @@ normal=$(tput sgr0)
 
 if [[ -z $OP || $OP == "--help" || $OP == "-h" ]];
 then
-	printf "rm-kernel(8)
+	printf "mank(8)
 	\n\n${bold}Description${normal}
 	\n\tManage installed Linux kernels, initramfs and GRUB bootloader entries.
 	\n\tThe script might request root privilages when certain operators are used.
