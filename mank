@@ -5,6 +5,10 @@ OP=$(echo "$1")
 OP2=$(echo "$2")
 OP3=$(echo "$3")
 
+# Set valid OP
+VALID_OP="-h -l -la -lb -lh -lm -r --help --list --list-all --list-bootloader-entries --list-headers --list-modules --remove"
+VALID_OP3="--dry"
+
 # Set variables for easy normal/bold font switching
 bold=$(tput bold)
 normal=$(tput sgr0)
@@ -40,6 +44,31 @@ then
 	# Exit
 	exit  0
 fi
+
+### Check if valid input ###
+# First operator
+if [[ $(echo $VALID_OP | grep -we $OP 2> /dev/null) ]];
+then
+	:
+else
+	printf "\"$OP\" is not a valid operator\n"
+
+	exit 1
+fi
+
+# Third operator
+if [[ -n $OP3 ]];
+then
+	if [[ $(echo $VALID_OP3 | grep -we $OP3 2> /dev/null) ]];
+	then
+		:
+	else
+		printf "\"$OP3\" is not a valid operator\n"
+
+		exit 1
+	fi
+fi
+
 
 ### Listing information ###
 if [[ $OP == "--list" || $OP == "-l" ]];
