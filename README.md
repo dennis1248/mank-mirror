@@ -11,5 +11,6 @@ Mank is a script used to manager installed kernels. It can be used to gather inf
 ## To-do
 - [x] Basic functionality (List information, remove everything)
 - [ ] Separate remove functionality for every listable piece of information
+- [ ] Optional configuration file (For custom filepaths and filenames etc..)
 - [ ] Assisting with installing kernels
 - [ ] Troubleshooting installed kernels  
