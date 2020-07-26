@@ -12,3 +12,5 @@ Mank is a script used to manager installed kernels. It can be used to gather inf
 - [x] Basic functionality (List information, remove everything)
 - [x] Separate remove functionality for every listable piece of information
 - [ ] Optional configuration file (For custom filepaths and filenames etc..)
+- [ ] Optional manual linking of kernel, bootloader entries, initramfs etc.. via "tracking file"
+- [ ] Check if bootloader is GRUB or Systemd-boot, check if entry matches by checking 'linux' target on Systemd-boot
