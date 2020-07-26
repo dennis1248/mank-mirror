@@ -6,7 +6,7 @@ OP2=$(echo "$2")
 OP3=$(echo "$3")
 
 # Set valid OP
-VALID_OP="-h -l -la -lb -lh -lm -r --help --list --list-all --list-bootloader-entries --list-headers --list-modules --remove"
+VALID_OP="-h -l -la -lb -lh -lm -r -ri -rc -rm -rb --help --list --list-all --list-bootloader-entries --list-headers --list-modules --remove --remove-initramfs --remove-config --remove-modules --remove-bootloader-entries"
 VALID_OP3="--dry"
 
 # Set variables for easy normal/bold font switching
@@ -17,7 +17,7 @@ if [[ -z $OP || $OP == "--help" || $OP == "-h" ]];
 then
 	printf "mank(8)
 	\n\n${bold}Description${normal}
-	\n\tManage installed Linux kernels, initramfs and GRUB bootloader entries.
+	\n\tManage installed Linux kernels, initramfs and bootloader entries.
 	\n\tThe script might request root privilages when certain operators are used.
 	\n\tThis program assumes common file naming schemes are used.
 	\n\n${bold}Commonly used options${normal}
@@ -37,6 +37,15 @@ then
 	\n\n${bold}Removing${normal}
 	\n\t${bold}-r, --remove <kernel>${normal}
 	\n\t\tRemove installed kernel, initramfs, bootloader entries and modules
+	\n\t${bold}-ri, --remove-initramfs <kernel>${normal}
+	\n\t\tRemove installed initramfs
+	\n\t${bold}-rc, --remove-config <kernel>${normal}
+	\n\t\tRemove configs
+	\n\t${bold}-rm, --remove-modules <kernel>${normal}
+	\n\t\tRemove installed modules
+	\n\t${bold}-rb, --remove-bootloader-entries <kernel>${normal}
+	\n\t\tRemove bootloader entries
+	\n\n${bold}Extra functionality${normal}
 	\n\t${bold}<Remove operator> <kernel> --dry${normal}
 	\n\t\tDo a dry run and print files
 	\n"
@@ -214,3 +223,150 @@ then
 	exit  0
 fi
 
+if [[ $OP == "--remove-initramfs" || $OP == "-ri" ]];
+then
+	if [ -z $OP2 ]; 
+	then
+		printf "You must specify the kernel version of the initramfs to remove
+		\n${bold}-ri, --remove-initramfs <kernel>${normal}
+		\n\tRemove installed initramfs
+		\n"
+   	exit $?
+	fi
+	
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	# if dry run is requested
+	if [[ $OP3 == "--dry" ]]; 
+	then
+		printf "\nThe following initramfs files will be removed\n"
+		ls -1 /boot | grep initramfs | grep $OP2 2> /dev/null || printf "No initramfs found\n" 
+
+		printf "\nDone...\n"
+
+   	exit 0
+	fi
+
+
+	# Remove initramfs
+	printf "Removing initrams...\n"
+	rm /boot/initramfs-*$OP2* 2> /dev/null || printf "Error removing initramfs for kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+	
+	# Exit
+	exit  0
+fi
+
+if [[ $OP == "--remove-config" || $OP == "-rc" ]];
+then
+	if [ -z $OP2 ]; 
+	then
+		printf "You must specify the kernel version of the configs to remove
+		\n${bold}-rc, --remove-config <kernel>${normal}
+		\n\tRemove installed configs
+		\n"
+   	exit $?
+	fi
+	
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	# if dry run is requested
+	if [[ $OP3 == "--dry" ]]; 
+	then
+		printf "\nThe following config files will be removed\n"
+		ls -1 /boot | grep config | grep $OP2 2> /dev/null || printf "No config files found\n"
+
+		printf "\nDone...\n"
+
+   	exit 0
+	fi
+
+
+	# Remove kernel configs
+	printf "Removing configs...\n"
+	rm /boot/config-*$OP2* 2> /dev/null || printf "Could not find any kernel config files, -Don't panic- not all distros have these\n"
+	
+	# Exit
+	exit  0
+fi
+
+if [[ $OP == "--remove-modules" || $OP == "-rm" ]];
+then
+	if [ -z $OP2 ]; 
+	then
+		printf "You must specify the kernel version of the modules to remove
+		\n${bold}-rm, --remove-modules <kernel>${normal}
+		\n\tRemove installed modules
+		\n"
+   	exit $?
+	fi
+	
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	# if dry run is requested
+	if [[ $OP3 == "--dry" ]]; 
+	then
+		printf "\nThe following modules will be removed\n"
+		ls -1 /lib/modules | grep $OP2 2> /dev/null || printf "No modules found\n"		
+		
+		printf "\nDone...\n"
+   	exit 0
+	fi
+
+	# Remove modules
+	printf "Removing modules...\n"
+	rm -r /lib/modules/*$OP2* 2> /dev/null || printf "Error removing modules for kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+	
+	# Exit
+	exit  0
+fi
+
+if [[ $OP == "--remove-bootloader-entries" || $OP == "-rb" ]];
+then
+	if [ -z $OP2 ]; 
+	then
+		printf "You must specify the kernel version of a bootloader entry to remove
+		\n${bold}-rb, --remove-bootloader-entries <kernel>${normal}
+		\n\tRemove bootloader entries
+		\n"
+   	exit $?
+	fi
+	
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	# if dry run is requested
+	if [[ $OP3 == "--dry" ]]; 
+	then
+		printf "\nThe following bootloader entries will be removed\n"
+		ls -1 /boot/loader/entries | grep $OP2 2> /dev/null || printf "No bootloader entries found\n"	
+		
+		printf "\nDone...\n"
+   	exit 0
+	fi
+
+	# Remove bootloader entries
+	printf "Removing bootloader entries...\n"
+	rm -r /boot/loader/entries/*$OP2* 2> /dev/null || printf "Error removing GRUB bootloader entries for kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+	
+	# Exit
+	exit  0
+fi

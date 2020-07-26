@@ -1,6 +1,6 @@
 ## mank (MANange Kernel)
 ### About
-Mank is a script used to manager installed kernels. It can be used to gather information on currently installed Linux kernels, initial RAM filesystems, kernel headers and bootloader entries and also remove them. 
+Mank is a script used to manager installed kernels. It can be used to gather information on currently installed Linux kernels, initial RAM filesystems, kernel headers and bootloader entries and remove them. 
 
 ### Common commands
 * `mank -h` Show mank manpage with more commands and examples
@@ -10,7 +10,5 @@ Mank is a script used to manager installed kernels. It can be used to gather inf
 
 ## To-do
 - [x] Basic functionality (List information, remove everything)
-- [ ] Separate remove functionality for every listable piece of information
+- [x] Separate remove functionality for every listable piece of information
 - [ ] Optional configuration file (For custom filepaths and filenames etc..)
-- [ ] Assisting with installing kernels
-- [ ] Troubleshooting installed kernels  
