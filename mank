@@ -6,7 +6,7 @@ OP2=$(echo "$2")
 OP3=$(echo "$3")
 
 # Set valid OP
-VALID_OP="-h -l -la -lb -lh -lm -r -ri -rc -rm -rb --help --list --list-all --list-bootloader-entries --list-headers --list-modules --remove --remove-initramfs --remove-config --remove-modules --remove-bootloader-entries"
+VALID_OP="-h -l -la -lb -lh -lm -r -rk -ri -rc -rm -rb --help --list --list-all --list-bootloader-entries --list-headers --list-modules --remove --remove-kernel --remove-initramfs --remove-config --remove-modules --remove-bootloader-entries"
 VALID_OP3="--dry"
 
 # Set variables for easy normal/bold font switching
@@ -37,6 +37,8 @@ then
 	\n\n${bold}Removing${normal}
 	\n\t${bold}-r, --remove <kernel>${normal}
 	\n\t\tRemove installed kernel, initramfs, bootloader entries and modules
+	\n\t${bold}-rk, --remove-kernel <kernel>${normal}
+	\n\t\tRemove installed kernel
 	\n\t${bold}-ri, --remove-initramfs <kernel>${normal}
 	\n\t\tRemove installed initramfs
 	\n\t${bold}-rc, --remove-config <kernel>${normal}
@@ -223,6 +225,43 @@ then
 	exit  0
 fi
 
+if [[ $OP == "--remove-kernel" || $OP == "-rk" ]];
+then
+	if [ -z $OP2 ]; 
+	then
+		printf "You must specify the kernel version of the kernel to remove
+		\n${bold}-rk, --remove-kernel <kernel>${normal}
+		\n\tRemove installed kernel
+		\n"
+   	exit $?
+	fi
+	
+	# Request root privilages if not already root
+	if [ $EUID != 0 ]; 
+	then
+  	sudo "$0" "$@"
+   	exit $?
+	fi
+
+	# if dry run is requested
+	if [[ $OP3 == "--dry" ]]; 
+	then
+		printf "The following kernels will be removed\n"
+		ls -1 /boot | grep vmlinuz | grep $OP2 2> /dev/null || printf "No kernels found\n"
+
+		printf "\nDone...\n"
+
+   	exit 0
+	fi
+
+	# Remove kernel
+	printf "Removing kernel...\n"
+	rm /boot/mvlinuz-*$OP2* 2> /dev/null || printf "Error removing kernel $OP2, it likely does not exist or you do not have the rights to remove it\n"
+
+	# Exit
+	exit  0
+fi
+
 if [[ $OP == "--remove-initramfs" || $OP == "-ri" ]];
 then
 	if [ -z $OP2 ]; 
@@ -249,9 +288,8 @@ then
 
 		printf "\nDone...\n"
 
-   	exit 0
+   		exit 0
 	fi
-
 
 	# Remove initramfs
 	printf "Removing initrams...\n"
@@ -289,7 +327,6 @@ then
 
    	exit 0
 	fi
-
 
 	# Remove kernel configs
 	printf "Removing configs...\n"
